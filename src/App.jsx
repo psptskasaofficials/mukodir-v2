@@ -9,11 +9,12 @@ import QuestMapView from './components/QuestMapView';
 import DrillView from './components/DrillView';
 import CodeView from './components/CodeView';
 import AITutorWidget from './components/AITutorWidget';
+import MateriView from './components/MateriView';
 
 // ==========================================
 // KOMPONEN MODUL MATERI & GENERATOR SOAL AI
 // ==========================================
-const MateriView = () => {
+const MateriView2 = () => {
   const [activeTopic, setActiveTopic] = useState(0);
   const [quizIdx, setQuizIdx] = useState(0);
   const [aiGeneratedQuiz, setAiGeneratedQuiz] = useState(null);
@@ -319,8 +320,12 @@ export default function App() {
           </div>
         )}
 
-        {activeTab === 'materi' && <MateriView />}
-
+{activeTab === 'materi' && (
+  <MateriView
+    studentName={studentName}
+    onRequestName={() => setActiveTab('home')}
+  />
+)}
         {activeTab === 'quests' && (
           <QuestMapView progress={progress} onSelectMission={handleSelectMission} />
         )}
