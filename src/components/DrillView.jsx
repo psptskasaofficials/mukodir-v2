@@ -11,7 +11,9 @@ import {
   AlertTriangle, Cpu, ArrowRight, RotateCcw, Award, HelpCircle, Plus
 } from 'lucide-react';
 
-// Komponen Kartu Blok yang Bisa Di-Drag
+// ==========================================
+// KOMPONEN KARTU BLOK (SORTABLE DRAG & DROP)
+// ==========================================
 const SortableBlockItem = ({ block, index, isActiveLine, onUpdate, onDelete }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: block.id,
@@ -37,19 +39,24 @@ const SortableBlockItem = ({ block, index, isActiveLine, onUpdate, onDelete }) =
   return (
     <div ref={setNodeRef} style={style} className="flex items-center gap-1.5 group">
       <span className="w-5 text-right text-[11px] font-mono text-slate-400 shrink-0">{index + 1}</span>
-      <div style={{ width: `${block.indent * 18}px` }} className="shrink-0 border-l-2 border-indigo-200 h-7" />
+      <div style={{ width: `${block.indent * 16}px` }} className="shrink-0 border-l-2 border-indigo-200 h-7" />
 
       <div
         className={`flex-1 flex items-center justify-between gap-2 p-2.5 rounded-xl border text-xs shadow-sm transition-all
         ${getBadgeStyle(block.type)}
         ${isActiveLine ? 'ring-2 ring-emerald-500 scale-[1.01] shadow-md bg-emerald-50/90' : ''}
-        ${isDragging ? 'opacity-80 shadow-xl' : ''}`}
+        ${isDragging ? 'opacity-85 shadow-xl' : ''}`}
       >
-        <div className="flex items-center gap-2 flex-wrap flex-1">
+        <div className="flex items-center gap-1.5 flex-wrap flex-1 min-w-0">
           {block.locked ? (
             <Lock className="w-3.5 h-3.5 text-slate-400 shrink-0" title="Blok Terkunci (Scaffolding)" />
           ) : (
-            <button {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing text-slate-400 hover:text-slate-700 touch-none">
+            <button
+              {...attributes}
+              {...listeners}
+              className="cursor-grab active:cursor-grabbing text-slate-400 hover:text-slate-700 touch-none p-0.5"
+              title="Geser urutan blok"
+            >
               <GripVertical className="w-4 h-4" />
             </button>
           )}
@@ -61,14 +68,14 @@ const SortableBlockItem = ({ block, index, isActiveLine, onUpdate, onDelete }) =
                 value={block.varName}
                 disabled={block.locked}
                 onChange={(e) => onUpdate(block.id, { varName: e.target.value })}
-                className="bg-white/80 border border-blue-200 rounded px-1.5 py-0.5 font-mono w-20 text-slate-800"
+                className="bg-white/90 border border-blue-200 rounded px-1.5 py-1 font-mono w-20 text-slate-800"
               />
               <span>sebagai</span>
               <select
                 value={block.dataType}
                 disabled={block.locked}
                 onChange={(e) => onUpdate(block.id, { dataType: e.target.value })}
-                className="bg-white/80 border border-blue-200 rounded px-1.5 py-0.5 text-slate-800"
+                className="bg-white/90 border border-blue-200 rounded px-1.5 py-1 text-slate-800"
               >
                 <option value="angka">Angka (int)</option>
                 <option value="desimal">Desimal (float)</option>
@@ -85,7 +92,7 @@ const SortableBlockItem = ({ block, index, isActiveLine, onUpdate, onDelete }) =
                 disabled={block.locked}
                 onChange={(e) => onUpdate(block.id, { prompt: e.target.value })}
                 placeholder="Pesan prompt..."
-                className="bg-white/80 border border-orange-200 rounded px-1.5 py-0.5 w-32 text-slate-800"
+                className="bg-white/90 border border-orange-200 rounded px-1.5 py-1 w-28 sm:w-32 text-slate-800"
               />
               <span>➔</span>
               <input
@@ -93,7 +100,7 @@ const SortableBlockItem = ({ block, index, isActiveLine, onUpdate, onDelete }) =
                 disabled={block.locked}
                 onChange={(e) => onUpdate(block.id, { varName: e.target.value })}
                 placeholder="var"
-                className="bg-white/80 border border-orange-200 rounded px-1.5 py-0.5 font-mono w-16 text-slate-800"
+                className="bg-white/90 border border-orange-200 rounded px-1.5 py-1 font-mono w-16 text-slate-800"
               />
             </>
           )}
@@ -106,7 +113,7 @@ const SortableBlockItem = ({ block, index, isActiveLine, onUpdate, onDelete }) =
                 disabled={block.locked}
                 onChange={(e) => onUpdate(block.id, { resultVar: e.target.value })}
                 placeholder="var"
-                className="bg-white/80 border border-purple-200 rounded px-1.5 py-0.5 font-mono w-16 text-slate-800"
+                className="bg-white/90 border border-purple-200 rounded px-1.5 py-1 font-mono w-16 text-slate-800"
               />
               <span>=</span>
               <input
@@ -114,7 +121,7 @@ const SortableBlockItem = ({ block, index, isActiveLine, onUpdate, onDelete }) =
                 disabled={block.locked}
                 onChange={(e) => onUpdate(block.id, { expression: e.target.value })}
                 placeholder={block.placeholder || "rumus..."}
-                className="bg-white border border-purple-300 rounded px-2 py-0.5 font-mono flex-1 min-w-[110px] text-slate-800 focus:ring-2 focus:ring-purple-400 outline-none"
+                className="bg-white border border-purple-300 rounded px-2 py-1 font-mono flex-1 min-w-[100px] text-slate-800 focus:ring-2 focus:ring-purple-400 outline-none"
               />
             </>
           )}
@@ -127,7 +134,7 @@ const SortableBlockItem = ({ block, index, isActiveLine, onUpdate, onDelete }) =
                 disabled={block.locked}
                 onChange={(e) => onUpdate(block.id, { text: e.target.value })}
                 placeholder="Teks..."
-                className="bg-white/80 border border-emerald-200 rounded px-1.5 py-0.5 w-28 text-slate-800"
+                className="bg-white/90 border border-emerald-200 rounded px-1.5 py-1 w-24 sm:w-28 text-slate-800"
               />
               <span>+ var:</span>
               <input
@@ -135,7 +142,7 @@ const SortableBlockItem = ({ block, index, isActiveLine, onUpdate, onDelete }) =
                 disabled={block.locked}
                 onChange={(e) => onUpdate(block.id, { varName: e.target.value })}
                 placeholder="(opsional)"
-                className="bg-white/80 border border-emerald-200 rounded px-1.5 py-0.5 font-mono w-20 text-slate-800"
+                className="bg-white/90 border border-emerald-200 rounded px-1.5 py-1 font-mono w-20 text-slate-800"
               />
             </>
           )}
@@ -148,7 +155,7 @@ const SortableBlockItem = ({ block, index, isActiveLine, onUpdate, onDelete }) =
                 disabled={block.locked}
                 onChange={(e) => onUpdate(block.id, { condition: e.target.value })}
                 placeholder="kondisi..."
-                className="bg-white border border-amber-300 rounded px-2 py-0.5 font-mono w-32 text-slate-800"
+                className="bg-white border border-amber-300 rounded px-2 py-1 font-mono w-28 sm:w-32 text-slate-800"
               />
               <strong>THEN</strong>
             </>
@@ -163,7 +170,7 @@ const SortableBlockItem = ({ block, index, isActiveLine, onUpdate, onDelete }) =
                 disabled={block.locked}
                 onChange={(e) => onUpdate(block.id, { condition: e.target.value })}
                 placeholder="kondisi..."
-                className="bg-white border border-pink-300 rounded px-2 py-0.5 font-mono w-32 text-slate-800"
+                className="bg-white border border-pink-300 rounded px-2 py-1 font-mono w-28 sm:w-32 text-slate-800"
               />
               <strong>DO</strong>
             </>
@@ -172,8 +179,12 @@ const SortableBlockItem = ({ block, index, isActiveLine, onUpdate, onDelete }) =
         </div>
 
         {!block.locked && (
-          <button onClick={() => onDelete(block.id)} className="text-red-400 hover:text-red-600 p-1">
-            <Trash2 className="w-3.5 h-3.5" />
+          <button
+            onClick={() => onDelete(block.id)}
+            className="text-red-400 hover:text-red-600 p-1 shrink-0"
+            title="Hapus blok"
+          >
+            <Trash2 className="w-4 h-4" />
           </button>
         )}
       </div>
@@ -181,6 +192,9 @@ const SortableBlockItem = ({ block, index, isActiveLine, onUpdate, onDelete }) =
   );
 };
 
+// ==========================================
+// KOMPONEN UTAMA: DRILL VIEW
+// ==========================================
 export default function DrillView({ activeMission, onCompleteMission, onSendToEditor }) {
   const [blocks, setBlocks] = useState([]);
   const [activeLang, setActiveLang] = useState('python');
@@ -192,9 +206,10 @@ export default function DrillView({ activeMission, onCompleteMission, onSendToEd
   const [terminalInput, setTerminalInput] = useState('');
   const [showHint, setShowHint] = useState(false);
   const [testResults, setTestResults] = useState(null);
+  const [mobilePane, setMobilePane] = useState('blocks'); // 'blocks' | 'code' | 'terminal'
 
-  // Muat blok awal dari Misi aktif atau template default
   useEffect(() => {
+    setMobilePane('blocks');
     if (activeMission) {
       setBlocks(JSON.parse(JSON.stringify(activeMission.initialBlocks)));
       setConsoleOutput([`🎯 Misi Dimuat: ${activeMission.title}`]);
@@ -210,6 +225,7 @@ export default function DrillView({ activeMission, onCompleteMission, onSendToEd
         { id: 'd5', type: 'PROCESS', resultVar: 'i', expression: 'i + 1', locked: false },
         { id: 'd6', type: 'WHILE_END', locked: false }
       ]);
+      setConsoleOutput(['Siap menjalankan simulator algoritma...']);
     }
   }, [activeMission]);
 
@@ -237,471 +253,3 @@ export default function DrillView({ activeMission, onCompleteMission, onSendToEd
         { id: uid + '_s', type: 'IF_START', condition: 'x > 0', locked: false },
         { id: uid + '_e', type: 'IF_END', locked: false }
       ]);
-    } else if (type === 'WHILE_PAIR') {
-      setBlocks((prev) => [
-        ...prev,
-        { id: uid + '_s', type: 'WHILE_START', condition: 'i <= 5', locked: false },
-        { id: uid + '_e', type: 'WHILE_END', locked: false }
-      ]);
-    } else {
-      const defaults = {
-        DECLARE: { varName: 'x', dataType: 'angka' },
-        INPUT: { prompt: 'Masukkan nilai:', varName: 'x' },
-        PROCESS: { resultVar: 'x', expression: '0' },
-        OUTPUT: { text: 'Hasil: ', varName: 'x' }
-      };
-      setBlocks((prev) => [...prev, { id: uid, type, ...defaults[type], locked: false }]);
-    }
-  };
-
-  const updateBlock = (id, patch) => {
-    setBlocks((prev) => prev.map((b) => (b.id === id ? { ...b, ...patch } : b)));
-  };
-
-  const deleteBlock = (id) => {
-    setBlocks((prev) => prev.filter((b) => b.id !== id));
-  };
-
-  // Static Bug Linter (Pengganti AI Cek Bug)
-  const analyzeStaticBugs = () => {
-    const warnings = [];
-    const declared = new Set();
-    blocks.forEach((b, idx) => {
-      if (b.type === 'DECLARE') declared.add(b.varName);
-      if ((b.type === 'INPUT' || b.type === 'PROCESS') && b.varName && !declared.has(b.varName || b.resultVar)) {
-        warnings.push(`Baris ${idx + 1}: Variabel "${b.varName || b.resultVar}" dipakai sebelum di-DECLARE.`);
-      }
-      if (b.type === 'PROCESS' && !b.expression.trim()) {
-        warnings.push(`Baris ${idx + 1}: Rumus pada blok SET "${b.resultVar}" masih kosong.`);
-      }
-    });
-    return warnings;
-  };
-
-  // Transpiler Kode
-  const generatePython = () => {
-    let code = `# Kode Python Hasil Transpilasi MUKODIR v2\n`;
-    let indent = 0;
-    const pad = () => '    '.repeat(indent);
-    blocks.forEach((b) => {
-      if (b.type === 'IF_END' || b.type === 'WHILE_END') {
-        indent = Math.max(0, indent - 1);
-      } else if (b.type === 'DECLARE') {
-        const def = b.dataType === 'teks' ? '""' : b.dataType === 'desimal' ? '0.0' : '0';
-        code += `${pad()}${b.varName} = ${def}\n`;
-      } else if (b.type === 'INPUT') {
-        const decl = blocks.find((x) => x.type === 'DECLARE' && x.varName === b.varName);
-        const cast = decl?.dataType === 'angka' ? 'int' : decl?.dataType === 'desimal' ? 'float' : '';
-        code += `${pad()}${b.varName} = ${cast ? `${cast}(input("${b.prompt} "))` : `input("${b.prompt} ")`}\n`;
-      } else if (b.type === 'PROCESS') {
-        code += `${pad()}${b.resultVar} = ${b.expression || '0'}\n`;
-      } else if (b.type === 'OUTPUT') {
-        code += b.varName
-          ? `${pad()}print(f"${b.text}{${b.varName}}")\n`
-          : `${pad()}print("${b.text}")\n`;
-      } else if (b.type === 'IF_START') {
-        code += `${pad()}if ${b.condition}:\n`;
-        indent++;
-      } else if (b.type === 'WHILE_START') {
-        code += `${pad()}while ${b.condition}:\n`;
-        indent++;
-      }
-    });
-    return code;
-  };
-
-  const generateCPP = () => {
-    let code = `#include <iostream>\nusing namespace std;\n\nint main() {\n`;
-    let indent = 1;
-    const pad = () => '    '.repeat(indent);
-    blocks.forEach((b) => {
-      if (b.type === 'IF_END' || b.type === 'WHILE_END') {
-        indent = Math.max(1, indent - 1);
-        code += `${pad()}}\n`;
-      } else if (b.type === 'DECLARE') {
-        const t = b.dataType === 'teks' ? 'string' : b.dataType === 'desimal' ? 'float' : 'int';
-        const d = b.dataType === 'teks' ? '""' : b.dataType === 'desimal' ? '0.0' : '0';
-        code += `${pad()}${t} ${b.varName} = ${d};\n`;
-      } else if (b.type === 'INPUT') {
-        code += `${pad()}cout << "${b.prompt} ";\n${pad()}cin >> ${b.varName};\n`;
-      } else if (b.type === 'PROCESS') {
-        code += `${pad()}${b.resultVar} = ${b.expression || '0'};\n`;
-      } else if (b.type === 'OUTPUT') {
-        code += `${pad()}cout << "${b.text}"${b.varName ? ` << ${b.varName}` : ''} << endl;\n`;
-      } else if (b.type === 'IF_START') {
-        code += `${pad()}if (${b.condition}) {\n`;
-        indent++;
-      } else if (b.type === 'WHILE_START') {
-        code += `${pad()}while (${b.condition}) {\n`;
-        indent++;
-      }
-    });
-    return code + `    return 0;\n}`;
-  };
-
-  // Interpreter Eksekusi (Bisa Mode Interaktif atau Mode Automated Test Case)
-  const executeBlocks = async (mockInputs = null, visualStep = true) => {
-    const jumpMap = {};
-    const stack = [];
-    for (let i = 0; i < blocks.length; i++) {
-      const t = blocks[i].type;
-      if (t === 'IF_START' || t === 'WHILE_START') stack.push({ i, t });
-      else if (t === 'IF_END' || t === 'WHILE_END') {
-        if (!stack.length) throw new Error(`Blok ${t} tanpa awalan START.`);
-        const top = stack.pop();
-        if ((top.t === 'IF_START' && t !== 'IF_END') || (top.t === 'WHILE_START' && t !== 'WHILE_END')) {
-          throw new Error('Pasangan blok IF/WHILE tidak sesuai.');
-        }
-        jumpMap[top.i] = i;
-        jumpMap[i] = top.i;
-      }
-    }
-    if (stack.length) throw new Error('Ada blok IF/WHILE yang belum ditutup END.');
-
-    let mem = {};
-    let pc = 0;
-    let steps = 0;
-    let mockIdx = 0;
-    const logs = [];
-
-    const evalExpr = (expr) => {
-      if (!expr || !expr.trim()) throw new Error('Ekspresi rumus kosong.');
-      let parsed = expr
-        .replace(/\band\b/g, '&&')
-        .replace(/\bor\b/g, '||')
-        .replace(/\bnot\b/g, '!')
-        .replace(/==/g, '===');
-      Object.keys(mem)
-        .sort((a, b) => b.length - a.length)
-        .forEach((k) => {
-          const val = typeof mem[k] === 'string' ? `"${mem[k]}"` : mem[k];
-          parsed = parsed.replace(new RegExp(`\\b${k}\\b`, 'g'), val);
-        });
-      return new Function('return ' + parsed)();
-    };
-
-    while (pc < blocks.length) {
-      if (steps++ > 1500) throw new Error('Infinite Loop terdeteksi! Periksa kondisi perulangan Anda.');
-      const b = blocks[pc];
-
-      if (visualStep) {
-        setActiveLineIdx(pc);
-        await new Promise((r) => setTimeout(r, 250));
-      }
-
-      if (b.type === 'DECLARE') {
-        mem[b.varName] = b.dataType === 'teks' ? '' : 0;
-        pc++;
-      } else if (b.type === 'INPUT') {
-        let rawVal = '';
-        if (mockInputs !== null) {
-          rawVal = mockInputs[mockIdx++] ?? '0';
-        } else {
-          rawVal = await new Promise((resolve) => setInputRequest({ prompt: b.prompt, resolve }));
-        }
-        const decl = blocks.find((x) => x.type === 'DECLARE' && x.varName === b.varName);
-        let parsedVal = rawVal;
-        if (decl?.dataType === 'angka') parsedVal = parseInt(rawVal, 10) || 0;
-        else if (decl?.dataType === 'desimal') parsedVal = parseFloat(rawVal) || 0.0;
-
-        mem[b.varName] = parsedVal;
-        const line = `> ${b.prompt} ${rawVal}`;
-        logs.push(line);
-        if (visualStep) setConsoleOutput((p) => [...p, line]);
-        pc++;
-      } else if (b.type === 'PROCESS') {
-        mem[b.resultVar] = evalExpr(b.expression);
-        pc++;
-      } else if (b.type === 'OUTPUT') {
-        const v = b.varName && mem[b.varName] !== undefined ? mem[b.varName] : '';
-        const line = `${b.text}${v}`;
-        logs.push(line);
-        if (visualStep) setConsoleOutput((p) => [...p, line]);
-        pc++;
-      } else if (b.type === 'IF_START' || b.type === 'WHILE_START') {
-        pc = evalExpr(b.condition) ? pc + 1 : jumpMap[pc] + 1;
-      } else if (b.type === 'WHILE_END') {
-        pc = jumpMap[pc];
-      } else {
-        pc++;
-      }
-
-      if (visualStep) setMemoryWatch({ ...mem });
-    }
-    return logs.join('\n');
-  };
-
-  const handleRunInteractive = async () => {
-    setIsRunning(true);
-    setConsoleOutput(['--- Menjalankan Simulasi ---']);
-    setMemoryWatch({});
-    setTestResults(null);
-    try {
-      await executeBlocks(null, true);
-      setConsoleOutput((p) => [...p, '--- Program Selesai ---']);
-    } catch (err) {
-      setConsoleOutput((p) => [...p, `❌ Error: ${err.message}`]);
-    } finally {
-      setIsRunning(false);
-      setActiveLineIdx(null);
-      setInputRequest(null);
-    }
-  };
-
-  const handleVerifyMission = async () => {
-    if (!activeMission) return;
-    setIsRunning(true);
-    setConsoleOutput(['🧪 Menguji solusi terhadap Test-Cases Misi...']);
-    const results = [];
-    let allPassed = true;
-
-    try {
-      for (const tc of activeMission.testCases) {
-        const fullLog = await executeBlocks(tc.inputs, false);
-        const passed = fullLog.includes(tc.expectedContains);
-        if (!passed) allPassed = false;
-        results.push({ label: tc.label, passed, actual: fullLog });
-      }
-      setTestResults(results);
-      if (allPassed) {
-        const stars = blocks.length <= activeMission.maxOptimalBlocks ? 3 : 2;
-        onCompleteMission(activeMission.id, stars);
-        setConsoleOutput((p) => [...p, `🎉 MISI SELESAI! Anda meraih ${stars} Bintang!`]);
-      } else {
-        setConsoleOutput((p) => [...p, '⚠️ Beberapa skenario uji belum sesuai target. Periksa kembali logika Anda.']);
-      }
-    } catch (err) {
-      setConsoleOutput((p) => [...p, `❌ Gagal Uji Misi: ${err.message}`]);
-    } finally {
-      setIsRunning(false);
-    }
-  };
-
-  // Hitung Indentasi Visual
-  let indentCounter = 0;
-  const indentedBlocks = blocks.map((b) => {
-    if (b.type === 'IF_END' || b.type === 'WHILE_END') indentCounter = Math.max(0, indentCounter - 1);
-    const indent = indentCounter;
-    if (b.type === 'IF_START' || b.type === 'WHILE_START') indentCounter++;
-    return { ...b, indent };
-  });
-
-  const staticWarnings = analyzeStaticBugs();
-
-  return (
-    <div className="space-y-4">
-      {/* Banner Misi Aktif */}
-      {activeMission && (
-        <div className="bg-indigo-50 border border-indigo-200 rounded-2xl p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-bold uppercase tracking-wider bg-indigo-600 text-white px-2.5 py-0.5 rounded-full">
-                {activeMission.scaffoldingLevel}
-              </span>
-              <span className="text-xs text-indigo-700 font-semibold">
-                Target Optimal: ≤ {activeMission.maxOptimalBlocks} Blok
-              </span>
-            </div>
-            <h2 className="text-lg font-extrabold text-slate-800">{activeMission.title}</h2>
-            <p className="text-sm text-slate-600">{activeMission.description}</p>
-            {showHint && (
-              <p className="text-xs bg-amber-50 text-amber-800 border border-amber-200 p-2 rounded-lg mt-2">
-                💡 <strong>Petunjuk:</strong> {activeMission.hint}
-              </p>
-            )}
-          </div>
-          <div className="flex gap-2 shrink-0">
-            <button
-              onClick={() => setShowHint(!showHint)}
-              className="px-3 py-2 rounded-xl bg-white border border-indigo-200 text-indigo-700 text-xs font-bold flex items-center gap-1 hover:bg-indigo-100"
-            >
-              <HelpCircle className="w-4 h-4" /> Petunjuk
-            </button>
-            <button
-              onClick={() => setBlocks(JSON.parse(JSON.stringify(activeMission.initialBlocks)))}
-              className="px-3 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 text-xs font-bold flex items-center gap-1 hover:bg-slate-100"
-            >
-              <RotateCcw className="w-4 h-4" /> Reset
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Grid Utama 3 Kolom */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-        {/* Kolom 1: Block Palette (3 kolom) */}
-        <div className="lg:col-span-3 bg-white rounded-2xl border border-slate-200 p-3 flex flex-col gap-2 shadow-sm">
-          <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-500 px-1">Palet Blok Kode</h3>
-          <p className="text-[11px] text-slate-400 px-1 mb-1">Klik blok untuk menambahkan ke kanvas:</p>
-          {[
-            { type: 'DECLARE', label: '+ DECLARE Variabel', color: 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100' },
-            { type: 'INPUT', label: '+ INPUT Data', color: 'bg-orange-50 text-orange-700 border-orange-200 hover:bg-orange-100' },
-            { type: 'PROCESS', label: '+ SET Proses / Rumus', color: 'bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100' },
-            { type: 'OUTPUT', label: '+ PRINT Cetak Output', color: 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100' },
-            { type: 'IF_PAIR', label: '+ Blok IF ... END IF', color: 'bg-amber-50 text-amber-800 border-amber-200 hover:bg-amber-100' },
-            { type: 'WHILE_PAIR', label: '+ Blok WHILE ... END', color: 'bg-pink-50 text-pink-800 border-pink-200 hover:bg-pink-100' },
-          ].map((item) => (
-            <button
-              key={item.type}
-              onClick={() => addBlockFromPalette(item.type)}
-              className={`w-full text-left px-3 py-2.5 rounded-xl border text-xs font-bold transition-all flex items-center justify-between ${item.color}`}
-            >
-              <span>{item.label}</span>
-              <Plus className="w-3.5 h-3.5" />
-            </button>
-          ))}
-
-          {/* Static Linter Box */}
-          <div className="mt-auto pt-3 border-t border-slate-100">
-            <h4 className="text-[11px] font-bold text-slate-500 uppercase mb-1.5 flex items-center gap-1">
-              <AlertTriangle className="w-3.5 h-3.5 text-amber-500" /> Analisis Logika Otomatis
-            </h4>
-            {staticWarnings.length === 0 ? (
-              <div className="text-xs text-emerald-700 bg-emerald-50 border border-emerald-200 p-2 rounded-xl flex items-center gap-1.5">
-                <CheckCircle2 className="w-4 h-4 shrink-0" /> Struktur blok terlihat bersih.
-              </div>
-            ) : (
-              <ul className="space-y-1 text-[11px] text-amber-800 bg-amber-50 border border-amber-200 p-2 rounded-xl">
-                {staticWarnings.map((w, i) => <li key={i}>• {w}</li>)}
-              </ul>
-            )}
-          </div>
-        </div>
-
-        {/* Kolom 2: Workspace Drag-and-Drop (5 kolom) */}
-        <div className="lg:col-span-5 bg-white rounded-2xl border border-slate-200 flex flex-col shadow-sm overflow-hidden min-h-[460px]">
-          <div className="p-3 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
-            <span className="text-xs font-extrabold text-slate-700">
-              Workspace Susun Blok ({blocks.length} Blok)
-            </span>
-            <div className="flex gap-2">
-              <button
-                onClick={handleRunInteractive}
-                disabled={isRunning}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1 shadow-sm disabled:opacity-50"
-              >
-                <Play className="w-3.5 h-3.5 fill-current" /> Run
-              </button>
-              {activeMission && (
-                <button
-                  onClick={handleVerifyMission}
-                  disabled={isRunning}
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1 shadow-sm disabled:opacity-50"
-                >
-                  <Award className="w-3.5 h-3.5" /> Uji Misi
-                </button>
-              )}
-            </div>
-          </div>
-
-          <div className="p-3 flex-1 overflow-y-auto bg-slate-100/60 space-y-2">
-            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-              <SortableContext items={indentedBlocks.map((b) => b.id)} strategy={verticalListSortingStrategy}>
-                {indentedBlocks.map((block, idx) => (
-                  <SortableBlockItem
-                    key={block.id}
-                    block={block}
-                    index={idx}
-                    isActiveLine={activeLineIdx === idx}
-                    onUpdate={updateBlock}
-                    onDelete={deleteBlock}
-                  />
-                ))}
-              </SortableContext>
-            </DndContext>
-          </div>
-        </div>
-
-        {/* Kolom 3: Live Code + RAM Watch + Terminal (4 kolom) */}
-        <div className="lg:col-span-4 flex flex-col gap-3">
-          {/* Panel Live Code */}
-          <div className="bg-[#1e1e2e] rounded-2xl border border-slate-800 overflow-hidden flex flex-col">
-            <div className="px-3 py-2 bg-[#181825] border-b border-slate-700/60 flex justify-between items-center">
-              <div className="flex gap-1">
-                <button
-                  onClick={() => setActiveLang('python')}
-                  className={`px-2.5 py-1 rounded text-xs font-bold ${activeLang === 'python' ? 'bg-blue-600 text-white' : 'text-slate-400'}`}
-                >
-                  Python
-                </button>
-                <button
-                  onClick={() => setActiveLang('cpp')}
-                  className={`px-2.5 py-1 rounded text-xs font-bold ${activeLang === 'cpp' ? 'bg-indigo-600 text-white' : 'text-slate-400'}`}
-                >
-                  C++
-                </button>
-              </div>
-              <button
-                onClick={() => onSendToEditor(activeLang === 'python' ? generatePython() : generateCPP(), activeLang)}
-                className="text-[11px] bg-slate-800 hover:bg-slate-700 text-emerald-400 px-2.5 py-1 rounded-lg font-semibold flex items-center gap-1"
-              >
-                Lanjut ke Editor <ArrowRight className="w-3 h-3" />
-              </button>
-            </div>
-            <pre className="p-3 text-xs font-mono text-slate-200 overflow-auto max-h-[160px]">
-              <code>{activeLang === 'python' ? generatePython() : generateCPP()}</code>
-            </pre>
-          </div>
-
-          {/* Panel Live Memory Watch (RAM) */}
-          <div className="bg-white rounded-2xl border border-slate-200 p-3 shadow-sm">
-            <div className="text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-              <Cpu className="w-3.5 h-3.5 text-indigo-600" /> Kotak Memori Variabel (RAM)
-            </div>
-            {Object.keys(memoryWatch).length === 0 ? (
-              <p className="text-xs text-slate-400 italic">Jalankan program untuk melihat isi memori...</p>
-            ) : (
-              <div className="flex flex-wrap gap-2">
-                {Object.entries(memoryWatch).map(([k, v]) => (
-                  <div key={k} className="bg-indigo-50 border border-indigo-200 px-2.5 py-1 rounded-lg text-xs font-mono">
-                    <span className="text-indigo-700 font-bold">{k}</span> = <span className="text-slate-800">{String(v)}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Panel Terminal Simulator */}
-          <div className="bg-black rounded-2xl border border-slate-800 flex-1 min-h-[170px] flex flex-col overflow-hidden">
-            <div className="px-3 py-1.5 bg-zinc-900 border-b border-slate-800 text-[10px] font-mono text-emerald-500 flex items-center gap-1.5">
-              <Terminal className="w-3 h-3" /> TERMINAL SIMULATOR
-            </div>
-            <div className="p-3 text-xs font-mono text-emerald-400 flex-1 overflow-y-auto space-y-1">
-              {consoleOutput.map((line, i) => <div key={i}>{line}</div>)}
-
-              {testResults && (
-                <div className="mt-2 pt-2 border-t border-slate-800 space-y-1">
-                  {testResults.map((tr, i) => (
-                    <div key={i} className={tr.passed ? 'text-emerald-400' : 'text-red-400'}>
-                      {tr.passed ? '✔' : '✘'} {tr.label}
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {inputRequest && (
-                <div className="flex items-center gap-2 mt-1">
-                  <span>{`> ${inputRequest.prompt}`}</span>
-                  <input
-                    autoFocus
-                    value={terminalInput}
-                    onChange={(e) => setTerminalInput(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        inputRequest.resolve(terminalInput);
-                        setTerminalInput('');
-                        setInputRequest(null);
-                      }
-                    }}
-                    className="bg-slate-800 border border-slate-600 text-white px-2 py-0.5 rounded outline-none flex-1"
-                    placeholder="Ketik lalu Enter..."
-                  />
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
