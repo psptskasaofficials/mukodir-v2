@@ -1,13 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Home, BookOpen, Map, Blocks, Code2, Sparkles, Info, CheckCircle2, XCircle, RotateCcw, Star } from 'lucide-react';
+import { Home, BookOpen, Map, Blocks, Code2, Sparkles, Info, CheckCircle2, XCircle, Loader2, Star } from 'lucide-react';
 import { QUIZ_BANK } from './data/missions';
+import { askMukodirAI } from './utils/aiService';
 import QuestMapView from './components/QuestMapView';
 import DrillView from './components/DrillView';
 import CodeView from './components/CodeView';
+import AITutorWidget from './components/AITutorWidget';
 
 const MateriView = () => {
   const [activeTopic, setActiveTopic] = useState(0);
   const [quizIdx, setQuizIdx] = useState(0);
+  const [aiGeneratedQuiz, setAiGeneratedQuiz] = useState(null);
+  const [loadingQuiz, setLoadingQuiz] = useState(false);
   const [selectedAnswer, setSelectedAnswer] = useState(null);
 
   const topics = [
@@ -18,17 +22,36 @@ const MateriView = () => {
     { title: "5. Perulangan (WHILE)", desc: "Perulangan mengulang blok instruksi selama syarat kondisi masih terpenuhi, wajib memiliki pengubah nilai agar tidak terjadi Infinite Loop." }
   ];
 
-  const currentQuizList = QUIZ_BANK[activeTopic] || QUIZ_BANK[0];
-  const currentQuiz = currentQuizList[quizIdx % currentQuizList.length];
+  const fallbackList = QUIZ_BANK[activeTopic] || QUIZ_BANK[0];
+  const currentQuiz = aiGeneratedQuiz || fallbackList[quizIdx % fallbackList.length];
+
+  const handleGenerateNewQuiz = async () => {
+    setLoadingQuiz(true);
+    setSelectedAnswer(null);
+    try {
+      const newQuiz = await askMukodirAI('quiz', { topic: topics[activeTopic].title });
+      if (newQuiz && newQuiz.question && Array.isArray(newQuiz.options)) {
+        setAiGeneratedQuiz(newQuiz);
+      } else {
+        throw new Error("Format soal tidak sesuai");
+      }
+    } catch {
+      // Fallback ke bank soal lokal jika offline
+      setAiGeneratedQuiz(null);
+      setQuizIdx((p) => p + 1);
+    } finally {
+      setLoadingQuiz(false);
+    }
+  };
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6 bg-white rounded-2xl md:rounded-3xl p-4 md:p-6 border border-slate-200 shadow-sm">
-      <div className="lg:col-span-4 flex lg:flex-col gap-2 overflow-x-auto pb-2 lg:pb-0 lg:pr-4 lg:border-r border-slate-100 no-scrollbar">
+      <div className="lg:col-span-4 flex lg:flex-col gap-2 overflow-x-auto pb-2 lg:pb-0 lg:pr-4 lg:border-r border-slate-100">
         <h3 className="hidden lg:block text-xs font-extrabold uppercase tracking-wider text-slate-400 mb-2">Modul Materi</h3>
         {topics.map((t, i) => (
           <button
             key={i}
-            onClick={() => { setActiveTopic(i); setQuizIdx(0); setSelectedAnswer(null); }}
+            onClick={() => { setActiveTopic(i); setAiGeneratedQuiz(null); setQuizIdx(0); setSelectedAnswer(null); }}
             className={`text-left px-3.5 py-2.5 rounded-xl text-xs md:text-sm font-bold transition-all whitespace-nowrap lg:whitespace-normal shrink-0 ${
               activeTopic === i ? 'bg-indigo-600 text-white shadow-sm' : 'bg-slate-50 lg:bg-transparent text-slate-600 hover:bg-slate-100'
             }`}
@@ -46,14 +69,19 @@ const MateriView = () => {
 
         <div className="bg-indigo-50/70 border border-indigo-100 rounded-2xl p-4 md:p-5 space-y-4">
           <div className="flex justify-between items-center gap-2">
-            <span className="text-xs md:text-sm font-extrabold text-indigo-900">Uji Pemahaman Konsep</span>
+            <span className="text-xs md:text-sm font-extrabold text-indigo-900 flex items-center gap-1.5">
+              Latihan Pemahaman {aiGeneratedQuiz && <span className="text-[10px] bg-indigo-600 text-white px-2 py-0.5 rounded-full">AI</span>}
+            </span>
             <button
-              onClick={() => { setQuizIdx((p) => p + 1); setSelectedAnswer(null); }}
-              className="text-xs bg-white border border-indigo-200 text-indigo-700 px-3 py-1.5 rounded-lg font-bold flex items-center gap-1 shrink-0 active:scale-95"
+              onClick={handleGenerateNewQuiz}
+              disabled={loadingQuiz}
+              className="text-xs bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg font-bold flex items-center gap-1.5 shrink-0 active:scale-95 disabled:opacity-50"
             >
-              <RotateCcw className="w-3.5 h-3.5" /> Soal Lain
+              {loadingQuiz ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5 text-amber-300" />}
+              Generate Soal AI
             </button>
           </div>
+
           <p className="font-bold text-slate-800 text-sm">{currentQuiz.question}</p>
           <div className="space-y-2">
             {currentQuiz.options.map((opt, idx) => {
@@ -65,7 +93,7 @@ const MateriView = () => {
                   key={idx}
                   disabled={show}
                   onClick={() => setSelectedAnswer(idx)}
-                  className={`w-full text-left px-3.5 py-3 rounded-xl border text-xs md:text-sm flex justify-between items-center transition-all active:scale-[0.99] ${
+                  className={`w-full text-left px-3.5 py-3 rounded-xl border text-xs md:text-sm flex justify-between items-center transition-all ${
                     !show ? 'bg-white border-slate-200 hover:border-indigo-400' :
                     isCorrect ? 'bg-emerald-50 border-emerald-300 text-emerald-900 font-semibold' :
                     isSelected ? 'bg-red-50 border-red-300 text-red-900' : 'bg-white opacity-50'
@@ -79,9 +107,12 @@ const MateriView = () => {
             })}
           </div>
           {selectedAnswer !== null && (
-            <div className="bg-white border border-indigo-200 p-3 rounded-xl text-xs text-slate-700 flex gap-2">
+            <div className="bg-white border border-indigo-200 p-3 rounded-xl text-xs text-slate-700 flex gap-2 leading-relaxed">
               <Info className="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
-              <span>{currentQuiz.explanation}</span>
+              <div>
+                <strong className="text-indigo-900 block mb-0.5">Pembahasan:</strong>
+                {currentQuiz.explanation}
+              </div>
             </div>
           )}
         </div>
@@ -122,7 +153,6 @@ export default function App() {
     setActiveTab('code');
   };
 
-  // Urutan menu khusus mobile (Misi berada di tengah seperti Programming Hub)
   const navItems = [
     { id: 'materi', label: 'Materi', icon: BookOpen },
     { id: 'drill', label: 'Blok', icon: Blocks },
@@ -133,7 +163,6 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col font-sans pb-20 md:pb-0">
-      {/* Top App Bar (Ringkas di HP, Lengkap di Desktop) */}
       <header className="bg-white/95 backdrop-blur-md border-b border-slate-200 sticky top-0 z-40 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 h-14 md:h-16 flex justify-between items-center">
           <div className="flex items-center gap-2.5">
@@ -152,7 +181,6 @@ export default function App() {
             </div>
           </div>
 
-          {/* Navigasi Desktop (Tersembunyi di HP) */}
           <nav className="hidden md:flex gap-1.5">
             {navItems.map((t) => {
               const Icon = t.icon;
@@ -172,7 +200,6 @@ export default function App() {
             })}
           </nav>
 
-          {/* Badge Bintang & Status di Pojok Kanan Atas */}
           <div className="flex items-center gap-2">
             <div className="bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-full flex items-center gap-1">
               <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
@@ -182,7 +209,6 @@ export default function App() {
         </div>
       </header>
 
-      {/* Konten Utama */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-4 md:p-6">
         {activeTab === 'home' && (
           <div className="max-w-md mx-auto bg-white rounded-3xl p-6 md:p-8 border border-slate-200 shadow-sm text-center space-y-4 mt-4 md:mt-8">
@@ -204,7 +230,7 @@ export default function App() {
             />
             <button
               onClick={() => setActiveTab('quests')}
-              className="w-full bg-indigo-600 hover:bg-indigo-700 active:scale-[0.99] text-white font-bold py-3.5 rounded-xl text-sm shadow-md shadow-indigo-200"
+              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 rounded-xl text-sm shadow-md shadow-indigo-200"
             >
               Mulai Belajar di Peta Misi ➔
             </button>
@@ -222,14 +248,16 @@ export default function App() {
         {activeTab === 'code' && <CodeView initialCode={editorPayload.code} initialLang={editorPayload.lang} />}
       </main>
 
-      {/* Bottom Navigation Bar Khusus Mobile (Ala Programming Hub) */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-50 px-2 pb-safe shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
+      {/* Floating Chatbot AI Tutor */}
+      <AITutorWidget currentContext={activeMission ? `Sedang mengerjakan ${activeMission.title}` : `Tab ${activeTab}`} />
+
+      {/* Bottom Navigation Bar Khusus Mobile */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-40 px-2 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
         <div className="flex justify-around items-center h-16">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = activeTab === item.id;
 
-            // Tombol Tengah Menonjol (Peta Misi)
             if (item.isCenter) {
               return (
                 <button
@@ -238,10 +266,8 @@ export default function App() {
                   className="flex flex-col items-center justify-center -mt-5"
                 >
                   <div
-                    className={`w-13 h-13 p-3.5 rounded-2xl shadow-lg transition-transform active:scale-90 flex items-center justify-center ${
-                      isActive
-                        ? 'bg-indigo-600 text-white ring-4 ring-indigo-100'
-                        : 'bg-slate-800 text-white'
+                    className={`p-3.5 rounded-2xl shadow-lg transition-transform active:scale-90 flex items-center justify-center ${
+                      isActive ? 'bg-indigo-600 text-white ring-4 ring-indigo-100' : 'bg-slate-800 text-white'
                     }`}
                   >
                     <Icon className="w-6 h-6" />
@@ -257,7 +283,7 @@ export default function App() {
               <button
                 key={item.id}
                 onClick={() => setActiveTab(item.id)}
-                className="flex flex-col items-center justify-center flex-1 py-1 active:scale-95 transition-transform"
+                className="flex flex-col items-center justify-center flex-1 py-1 active:scale-95"
               >
                 <div className={`p-1.5 rounded-xl ${isActive ? 'bg-indigo-50 text-indigo-600' : 'text-slate-400'}`}>
                   <Icon className="w-5 h-5" />
