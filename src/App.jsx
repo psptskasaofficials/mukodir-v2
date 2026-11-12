@@ -7,7 +7,7 @@ import DrillView from './components/DrillView';
 import CodeView from './components/CodeView';
 import AITutorWidget from './components/AITutorWidget';
 
-const MateriView = () => {
+const MateriView = () => const MateriView = () => {
   const [activeTopic, setActiveTopic] = useState(0);
   const [quizIdx, setQuizIdx] = useState(0);
   const [aiGeneratedQuiz, setAiGeneratedQuiz] = useState(null);
@@ -15,11 +15,31 @@ const MateriView = () => {
   const [selectedAnswer, setSelectedAnswer] = useState(null);
 
   const topics = [
-    { title: "1. Pengantar Algoritma", desc: "Algoritma adalah urutan langkah logis untuk menyelesaikan masalah dari atas ke bawah secara terstruktur." },
-    { title: "2. Variabel & Tipe Data", desc: "Variabel adalah wadah penyimpan data di memori (RAM) dengan tipe Integer (bulat), Float (desimal), String (teks), dan Boolean (True/False)." },
-    { title: "3. Operator Logika", desc: "Operator membandingkan nilai menggunakan == (sama dengan), != (tidak sama), >= (lebih besar atau sama dengan)." },
-    { title: "4. Percabangan (IF)", desc: "Percabangan memilih jalur eksekusi berdasarkan kondisi yang bernilai True atau False." },
-    { title: "5. Perulangan (WHILE)", desc: "Perulangan mengulang blok instruksi selama syarat kondisi masih terpenuhi, wajib memiliki pengubah nilai agar tidak terjadi Infinite Loop." }
+    {
+      title: "1. Pengantar Algoritma",
+      level: "Level 1 — Dasar (Urutan Logika & Pemecahan Masalah)",
+      desc: "Konsep algoritma sebagai urutan langkah logis dari atas ke bawah, sifat terhingga (finite), serta studi kasus kehidupan sehari-hari tanpa sintaks rumit."
+    },
+    {
+      title: "2. Variabel & Tipe Data",
+      level: "Level 2 — Pemahaman (Memori RAM & Pemilihan Tipe Data)",
+      desc: "Fungsi variabel sebagai wadah penyimpan nilai di memori RAM serta ketepatan memilih tipe data Integer (bilat), Float (desimal), String (teks), dan Boolean (True/False)."
+    },
+    {
+      title: "3. Operator Logika",
+      level: "Level 3 — Aplikasi (Evaluasi Ekspresi & Perbandingan)",
+      desc: "Perbedaan operator penugasan (=) dengan perbandingan (==, !=, >, <, >=, <=) serta evaluasi logika gabungan (AND, OR, NOT)."
+    },
+    {
+      title: "4. Percabangan (IF)",
+      level: "Level 4 — Analisis (Penelusuran Kondisi & Nilai Batas)",
+      desc: "Menentukan jalur eksekusi program pada kondisi IF-ELSE dan menguji kasus nilai batas (boundary condition)."
+    },
+    {
+      title: "5. Perulangan (WHILE)",
+      level: "Level 5 — Evaluasi Lanjut (Tracing Iterasi & Infinite Loop)",
+      desc: "Menghitung jumlah perulangan, melacak perubahan nilai variabel pencacah (counter) di setiap iterasi, serta mendeteksi penyebab Infinite Loop."
+    }
   ];
 
   const fallbackList = QUIZ_BANK[activeTopic] || QUIZ_BANK[0];
@@ -28,15 +48,19 @@ const MateriView = () => {
   const handleGenerateNewQuiz = async () => {
     setLoadingQuiz(true);
     setSelectedAnswer(null);
+    const currentTopic = topics[activeTopic];
     try {
-      const newQuiz = await askMukodirAI('quiz', { topic: topics[activeTopic].title });
+      const newQuiz = await askMukodirAI('quiz', {
+        topic: currentTopic.title,
+        level: currentTopic.level,
+        desc: currentTopic.desc
+      });
       if (newQuiz && newQuiz.question && Array.isArray(newQuiz.options)) {
         setAiGeneratedQuiz(newQuiz);
       } else {
         throw new Error("Format soal tidak sesuai");
       }
     } catch {
-      // Fallback ke bank soal lokal jika offline
       setAiGeneratedQuiz(null);
       setQuizIdx((p) => p + 1);
     } finally {
