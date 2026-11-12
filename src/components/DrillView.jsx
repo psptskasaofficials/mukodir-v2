@@ -1,3 +1,5 @@
+import { Sparkles, Loader2 } from 'lucide-react';
+import { askMukodirAI } from '../utils/aiService';
 import React, { useState, useEffect } from 'react';
 import {
   DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors
@@ -207,6 +209,22 @@ export default function DrillView({ activeMission, onCompleteMission, onSendToEd
   const [showHint, setShowHint] = useState(false);
   const [testResults, setTestResults] = useState(null);
   const [mobilePane, setMobilePane] = useState('blocks'); // 'blocks' | 'code' | 'terminal'
+  const [aiFeedback, setAiFeedback] = useState('');
+  const [analyzingAI, setAnalyzingAI] = useState(false);
+
+const handleAnalyzeWithAI = async () => {
+  setAnalyzingAI(true);
+  setAiFeedback('');
+  try {
+    const codeText = activeLang === 'python' ? generatePython() : generateCPP();
+    const result = await askMukodirAI('analyze', { blocks, code: codeText, lang: activeLang });
+    setAiFeedback(result);
+  } catch (err) {
+    setAiFeedback(`⚠️ ${err.message}`);
+  } finally {
+    setAnalyzingAI(false);
+  }
+};
 
   useEffect(() => {
     setMobilePane('blocks');
@@ -684,10 +702,24 @@ export default function DrillView({ activeMission, onCompleteMission, onSendToEd
               >
                 Edit Teks <ArrowRight className="w-3 h-3" />
               </button>
+              <button
+  onClick={handleAnalyzeWithAI}
+  disabled={analyzingAI}
+  className="text-[11px] bg-indigo-600 hover:bg-indigo-500 text-white px-2.5 py-1.5 rounded-lg font-bold flex items-center gap-1"
+>
+  {analyzingAI ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3 text-amber-300" />}
+  Analisis AI
+</button>
             </div>
             <pre className="p-3 text-xs font-mono text-slate-200 overflow-auto min-h-[220px] lg:max-h-[160px]">
               <code>{activeLang === 'python' ? generatePython() : generateCPP()}</code>
             </pre>
+            {aiFeedback && (
+  <div className="p-3 bg-indigo-950/90 border-t border-indigo-500/40 text-xs text-indigo-100 whitespace-pre-wrap leading-relaxed max-h-48 overflow-y-auto">
+    <div className="font-extrabold text-amber-300 mb-1">💡 Analisis Tutor AI:</div>
+    {aiFeedback}
+  </div>
+)}
           </div>
 
           {/* Panel RAM + Terminal */}
